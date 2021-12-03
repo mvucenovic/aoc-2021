@@ -65,7 +65,7 @@ pub fn part_02() -> anyhow::Result<u64> {
             Command::Forward(val) => {
                 x += val;
                 y += aim * val;
-            },
+            }
             Command::Up(val) => aim -= val,
             Command::Down(val) => aim += val,
         }
