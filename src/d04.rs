@@ -1,5 +1,3 @@
-use std::any;
-
 use anyhow::{anyhow, Context};
 
 pub fn part_01() -> anyhow::Result<u32> {
