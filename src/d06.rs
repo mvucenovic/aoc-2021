@@ -16,7 +16,10 @@ fn inputs() -> anyhow::Result<Vec<usize>> {
     let input_string =
         std::fs::read_to_string("inputs/06_input.txt").context("Error while reading input")?;
 
-    Ok(input_string.split(',').map(|n| n.parse()).collect::<Result<_,_>>()?)
+    Ok(input_string
+        .split(',')
+        .map(|n| n.parse())
+        .collect::<Result<_, _>>()?)
 }
 
 fn solve(max_days: usize, inputs: &[usize]) -> usize {
@@ -26,7 +29,7 @@ fn solve(max_days: usize, inputs: &[usize]) -> usize {
         states_cnt[*state] += 1;
     }
 
-    for day in 0..max_days {
+    for _day in 0..max_days {
         iteration(&mut states_cnt);
     }
 
@@ -42,7 +45,6 @@ fn iteration(states_cnt: &mut [usize; 9]) {
     states_cnt[8] = zeros;
 }
 
-
 #[cfg(test)]
 mod tests {
 
@@ -50,8 +52,8 @@ mod tests {
 
     #[test]
     fn test_cast_p01() {
-        let inputs = vec![3,4,3,1,2];
-        
+        let inputs = vec![3, 4, 3, 1, 2];
+
         let res = solve(18, &inputs);
         assert_eq!(res, 26);
 
