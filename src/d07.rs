@@ -27,7 +27,6 @@ fn solve_01(positions: &[u64]) -> Vec<u64> {
 
     let max_pos = positions.iter().max().unwrap();
     for i in 0..=*max_pos {
-
         sums.push(left_sum + right_sum);
 
         let cur_count = *map.get(&i).unwrap_or(&0);
@@ -40,6 +39,7 @@ fn solve_01(positions: &[u64]) -> Vec<u64> {
 
     sums
 }
+
 pub fn part_02() -> anyhow::Result<i64> {
     let positions = inputs()?;
 
@@ -57,7 +57,6 @@ fn calc_fuel_02(ix: u64, map: &HashMap<u64, u64>) -> i64 {
 }
 
 fn solve_02(positions: &[u64]) -> Vec<i64> {
-
     let mut map = HashMap::new();
 
     for position in positions.iter() {
@@ -91,7 +90,7 @@ mod tests {
 
     #[test]
     fn test_inputs_01() {
-        let inputs = vec![16,1,2,0,4,2,7,1,2,14];
+        let inputs = vec![16, 1, 2, 0, 4, 2, 7, 1, 2, 14];
 
         let res = solve_01(&inputs);
         assert_eq!(res[1], 41);
@@ -101,7 +100,7 @@ mod tests {
 
     #[test]
     fn test_inputs_02() {
-        let inputs = vec![16,1,2,0,4,2,7,1,2,14];
+        let inputs = vec![16, 1, 2, 0, 4, 2, 7, 1, 2, 14];
 
         let res = solve_02(&inputs);
         assert_eq!(res[5], 168);
