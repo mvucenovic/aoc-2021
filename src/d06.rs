@@ -1,12 +1,12 @@
 use anyhow::Context;
 
-pub fn part_01() -> anyhow::Result<usize> {
+pub fn part_01() -> anyhow::Result<u64> {
     let starting = inputs()?;
 
     Ok(solve(80, &starting))
 }
 
-pub fn part_02() -> anyhow::Result<usize> {
+pub fn part_02() -> anyhow::Result<u64> {
     let starting = inputs()?;
 
     Ok(solve(256, &starting))
@@ -22,8 +22,8 @@ fn inputs() -> anyhow::Result<Vec<usize>> {
         .collect::<Result<_, _>>()?)
 }
 
-fn solve(max_days: usize, inputs: &[usize]) -> usize {
-    let mut states_cnt = [0usize; 9];
+fn solve(max_days: usize, inputs: &[usize]) -> u64 {
+    let mut states_cnt = [0u64; 9];
 
     for state in inputs {
         states_cnt[*state] += 1;
@@ -36,7 +36,7 @@ fn solve(max_days: usize, inputs: &[usize]) -> usize {
     states_cnt.iter().sum()
 }
 
-fn iteration(states_cnt: &mut [usize; 9]) {
+fn iteration(states_cnt: &mut [u64; 9]) {
     let zeros = states_cnt[0];
     for i in 0..8 {
         states_cnt[i] = states_cnt[i + 1];
