@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 use anyhow::Context;
 
 pub fn part_01() -> anyhow::Result<u32> {
@@ -73,7 +75,7 @@ pub fn part_02() -> anyhow::Result<usize> {
 
 fn basin_calc(ix: usize, iy: usize, inputs: &mut Vec<Vec<u32>>) -> usize {
     let mut num_filled = 0;
-    let mut queue: std::collections::VecDeque<(usize, usize)> = [(ix, iy)].into();
+    let mut queue = VecDeque::from([(ix, iy)]);
     while let Some((x, y)) = queue.pop_front() {
         if inputs[y][x] == 9 {
             continue;
