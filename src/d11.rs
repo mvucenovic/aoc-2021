@@ -1,5 +1,3 @@
-use std::array::IntoIter;
-
 use anyhow::Context;
 use itertools::Itertools;
 
@@ -82,7 +80,7 @@ pub fn part_02() -> anyhow::Result<u32> {
         s += 1;
         step(&mut inputs);
         if inputs.iter().all(|row| row.iter().all(|el| *el == 0)) {
-            return Ok(s)
+            return Ok(s);
         }
     }
 
