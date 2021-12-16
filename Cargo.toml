@@ -8,3 +8,5 @@ edition = "2021"
 [dependencies]
 anyhow = "1"
 itertools = "0.10"
+nom = "7"
+hex = "0.4"
