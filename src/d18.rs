@@ -60,7 +60,25 @@ impl Snailfish {
                     *self = Snailfish::Number(0);
                     return (true, index, v1, v2);
                 }
-                _ => return (false, index, 0, 0),
+                (Snailfish::Number(_), Snailfish::Pair(mut s1, mut s2)) => {
+                    let new_index = index + 1; // left one is plain number, and should be indexed
+                    let (_, new_ix, _, _) = s1.find_and_explode_index(new_index, depth + 1);
+                    let (_, new_ix, _, _) = s2.find_and_explode_index(new_ix, depth + 1);
+                    return (false, new_ix, 0, 0)
+                }, 
+                (Snailfish::Pair(mut s1, mut s2), Snailfish::Number(_)) => {
+                    let (_, new_ix, _, _) = s1.find_and_explode_index(index, depth + 1);
+                    let (_, new_ix, _, _) = s2.find_and_explode_index(new_ix, depth + 1);
+                    let new_ix = new_ix + 1; // right one is plain number, and should be indexed
+                    return (false, new_ix + 1, 0, 0)
+                }, 
+                (Snailfish::Pair(mut s1, mut s2), Snailfish::Pair(mut s3, mut s4)) => {
+                    let (_, new_ix, _, _) = s1.find_and_explode_index(index, depth + 1);
+                    let (_, new_ix, _, _) = s2.find_and_explode_index(new_ix, depth + 1);
+                    let (_, new_ix, _, _) = s3.find_and_explode_index(new_ix, depth + 1);
+                    let (_, new_ix, _, _) = s4.find_and_explode_index(new_ix, depth + 1);
+                    return (false, new_ix, 0, 0)
+                }
             },
             Snailfish::Pair(s1, s2) => {
                 let (found, new_ix, left, right) = s1.find_and_explode_index(index, depth + 1);
@@ -180,7 +198,13 @@ fn solve_01(mut fishes: Vec<Snailfish>) -> Snailfish {
 pub fn part_02() -> anyhow::Result<u64> {
     let fishes = inputs()?;
 
-    let max = fishes
+    let max = solve_02(fishes);
+
+    Ok(max) // 14429 too high
+}
+
+fn solve_02(fishes: Vec<Snailfish>) -> u64 {
+    fishes
         .into_iter()
         .permutations(2)
         .map(|mut perm| {
@@ -189,9 +213,7 @@ pub fn part_02() -> anyhow::Result<u64> {
             added_fishes.magnitude()
         })
         .max()
-        .unwrap();
-
-    Ok(max) // 14429 too high
+        .unwrap()
 }
 
 fn inputs() -> anyhow::Result<Vec<Snailfish>> {
@@ -275,5 +297,49 @@ mod tests {
             let s_displayed = format!("{}", s);
             assert_eq!(&s_displayed, after);
         }
+    }
+
+    #[test]
+    fn test_part_01() {
+        let inputs = [
+            "[[[0,[5,8]],[[1,7],[9,6]]],[[4,[1,2]],[[1,4],2]]]",
+            "[[[5,[2,8]],4],[5,[[9,9],0]]]",
+            "[6,[[[6,2],[5,6]],[[7,6],[4,7]]]]",
+            "[[[6,[0,7]],[0,9]],[4,[9,[9,0]]]]",
+            "[[[7,[6,4]],[3,[1,3]]],[[[5,5],1],9]]",
+            "[[6,[[7,3],[3,2]]],[[[3,8],[5,7]],4]]",
+            "[[[[5,4],[7,7]],8],[[8,3],8]]",
+            "[[9,3],[[9,9],[6,[4,9]]]]",
+            "[[2,[[7,7],7]],[[5,8],[[9,3],[0,2]]]]",
+            "[[[[5,2],5],[8,[3,7]]],[[5,[7,5]],[4,4]]]",
+        ];
+
+        let inputs = inputs.into_iter().map(Snailfish::from_str).collect::<Vec<_>>();
+
+        let res = solve_01(inputs);
+
+        assert_eq!(res.magnitude(), 4140);
+    }
+
+    #[test]
+    fn test_part_02() {
+        let inputs = [
+            "[[[0,[5,8]],[[1,7],[9,6]]],[[4,[1,2]],[[1,4],2]]]",
+            "[[[5,[2,8]],4],[5,[[9,9],0]]]",
+            "[6,[[[6,2],[5,6]],[[7,6],[4,7]]]]",
+            "[[[6,[0,7]],[0,9]],[4,[9,[9,0]]]]",
+            "[[[7,[6,4]],[3,[1,3]]],[[[5,5],1],9]]",
+            "[[6,[[7,3],[3,2]]],[[[3,8],[5,7]],4]]",
+            "[[[[5,4],[7,7]],8],[[8,3],8]]",
+            "[[9,3],[[9,9],[6,[4,9]]]]",
+            "[[2,[[7,7],7]],[[5,8],[[9,3],[0,2]]]]",
+            "[[[[5,2],5],[8,[3,7]]],[[5,[7,5]],[4,4]]]",
+        ];
+
+        let inputs = inputs.into_iter().map(Snailfish::from_str).collect::<Vec<_>>();
+
+        let res = solve_02(inputs);
+
+        assert_eq!(res, 3993);
     }
 }
