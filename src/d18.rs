@@ -64,20 +64,20 @@ impl Snailfish {
                     let new_index = index + 1; // left one is plain number, and should be indexed
                     let (_, new_ix, _, _) = s1.find_and_explode_index(new_index, depth + 1);
                     let (_, new_ix, _, _) = s2.find_and_explode_index(new_ix, depth + 1);
-                    return (false, new_ix, 0, 0)
-                }, 
+                    return (false, new_ix, 0, 0);
+                }
                 (Snailfish::Pair(mut s1, mut s2), Snailfish::Number(_)) => {
                     let (_, new_ix, _, _) = s1.find_and_explode_index(index, depth + 1);
                     let (_, new_ix, _, _) = s2.find_and_explode_index(new_ix, depth + 1);
                     let new_ix = new_ix + 1; // right one is plain number, and should be indexed
-                    return (false, new_ix + 1, 0, 0)
-                }, 
+                    return (false, new_ix + 1, 0, 0);
+                }
                 (Snailfish::Pair(mut s1, mut s2), Snailfish::Pair(mut s3, mut s4)) => {
                     let (_, new_ix, _, _) = s1.find_and_explode_index(index, depth + 1);
                     let (_, new_ix, _, _) = s2.find_and_explode_index(new_ix, depth + 1);
                     let (_, new_ix, _, _) = s3.find_and_explode_index(new_ix, depth + 1);
                     let (_, new_ix, _, _) = s4.find_and_explode_index(new_ix, depth + 1);
-                    return (false, new_ix, 0, 0)
+                    return (false, new_ix, 0, 0);
                 }
             },
             Snailfish::Pair(s1, s2) => {
@@ -314,7 +314,10 @@ mod tests {
             "[[[[5,2],5],[8,[3,7]]],[[5,[7,5]],[4,4]]]",
         ];
 
-        let inputs = inputs.into_iter().map(Snailfish::from_str).collect::<Vec<_>>();
+        let inputs = inputs
+            .into_iter()
+            .map(Snailfish::from_str)
+            .collect::<Vec<_>>();
 
         let res = solve_01(inputs);
 
@@ -336,7 +339,10 @@ mod tests {
             "[[[[5,2],5],[8,[3,7]]],[[5,[7,5]],[4,4]]]",
         ];
 
-        let inputs = inputs.into_iter().map(Snailfish::from_str).collect::<Vec<_>>();
+        let inputs = inputs
+            .into_iter()
+            .map(Snailfish::from_str)
+            .collect::<Vec<_>>();
 
         let res = solve_02(inputs);
 
