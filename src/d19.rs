@@ -48,9 +48,9 @@ fn try_fit_par(s1: &Sonar, s2: &Sonar, number: usize) -> Option<(HashSet<Coord>,
             for c1 in s1 {
                 let c2_unrot = unrotate(c2, &rot);
                 let delta = sub_vectors(&c2_unrot, c1);
-                *m.entry(delta).or_insert(0) += 1;
-
-                if *m.get(&delta).unwrap() >= number {
+                let entry = m.entry(delta).or_insert(0);
+                *entry += 1;
+                if *entry >= number {
                     let (coords_set, count) =
                         fit_after_rotation_and_transposition(s1, s2, &rot, &delta);
                     return Some((coords_set, minus_vector(&delta), count));
