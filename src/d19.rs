@@ -5,40 +5,15 @@ use itertools::Itertools;
 use std::collections::HashSet;
 
 pub fn part_01() -> anyhow::Result<usize> {
-    let mut inputs = inputs()?;
-    let mut set = inputs.remove(0);
-
-    'outer: while inputs.len() > 0 {
-        for (ix, input) in inputs.iter().enumerate() {
-            if let Some(res) = try_fit_par(&set, input, 12) {
-                set = res.0;
-                inputs.remove(ix);
-                continue 'outer;
-            }
-        }
-        panic!("No pair found!");
-    }
+    let inputs = inputs()?;
+    let (set, _) = solve(inputs);
 
     Ok(set.len())
 }
 
 pub fn part_02() -> anyhow::Result<i32> {
-    let mut inputs = inputs()?;
-    let mut set = inputs.remove(0);
-
-    let mut positions = vec![(0, 0, 0)];
-
-    'outer: while inputs.len() > 0 {
-        for (ix, input) in inputs.iter().enumerate() {
-            if let Some(res) = try_fit_par(&set, input, 12) {
-                set = res.0;
-                inputs.remove(ix);
-                positions.push(res.1);
-                continue 'outer;
-            }
-        }
-        panic!("No pair found!");
-    }
+    let inputs = inputs()?;
+    let (_, positions) = solve(inputs);
 
     let res = positions
         .into_iter()
@@ -49,8 +24,64 @@ pub fn part_02() -> anyhow::Result<i32> {
     Ok(res.unwrap())
 }
 
-fn manhatten_distance(c1: &Coord, c2: &Coord) -> i32 {
-    (c1.0 - c2.0).abs() + (c1.1 - c2.1).abs() + (c1.2 - c2.2).abs()
+fn solve(mut inputs: Vec<Sonar>) -> (Sonar, Vec<Coord>) {
+    let mut set = inputs.remove(0);
+    let mut positions = vec![(0, 0, 0)];
+
+    'outer: while inputs.len() > 0 {
+        for (ix, input) in inputs.iter().enumerate() {
+            if let Some((new_set, position, _)) = try_fit_par(&set, input, 12) {
+                set = new_set;
+                inputs.remove(ix);
+                positions.push(position);
+                continue 'outer;
+            }
+        }
+        panic!("No pair found!");
+    }
+
+    (set, positions)
+}
+
+fn try_fit_par(s1: &Sonar, s2: &Sonar, number: usize) -> Option<(HashSet<Coord>, Coord, usize)> {
+    for rot in ROTATIONS {
+        for c2 in s2 {
+            let c2_unrot = unrotate(c2, &rot);
+            for c1 in s1 {
+                let delta = sub_vectors(&c2_unrot, c1);
+
+                let (coords_set, count) =
+                    fit_after_rotation_and_transposition(s1, s2, &rot, &delta);
+
+                if count >= number {
+                    // this is a solution
+                    return Some((coords_set, minus_vector(&delta), count));
+                }
+            }
+        }
+    }
+    return None;
+}
+
+fn fit_after_rotation_and_transposition(
+    s1: &Sonar,
+    s2: &Sonar,
+    rot: &[[i32; 3]; 3],
+    delta: &Coord,
+) -> (Sonar, usize) {
+    let mut count = 0;
+    let mut coords_set = s1.clone();
+    for c2 in s2 {
+        let c2_unrot = unrotate(c2, rot);
+        let c2_unrot_and_transposed = sub_vectors(&c2_unrot, delta);
+        if coords_set.contains(&c2_unrot_and_transposed) {
+            count += 1;
+        } else {
+            coords_set.insert(c2_unrot_and_transposed);
+        }
+    }
+
+    (coords_set, count)
 }
 
 const ROTATIONS: [[[i32; 3]; 3]; 24] = [
@@ -129,67 +160,20 @@ fn unrotate(c: &Coord, rotation_matrix: &[[i32; 3]; 3]) -> Coord {
 
 const SONAR_DISTANCE: i32 = 1000;
 
-fn is_possible_candidate(delta: &Coord) -> bool {
-    delta.0.abs() <= SONAR_DISTANCE * 2
-        && delta.1.abs() <= SONAR_DISTANCE * 2
-        && delta.2.abs() <= SONAR_DISTANCE * 2
-}
-
-fn try_fit_par(s1: &Sonar, s2: &Sonar, number: usize) -> Option<(HashSet<Coord>, Coord, usize)> {
-    for rot in ROTATIONS {
-        for c2 in s2 {
-            let c2_unrot = unrotate(c2, &rot);
-            for c1 in s1 {
-                let delta = sub_coords(&c2_unrot, c1);
-
-                // if !is_possible_candidate(&delta) {
-                //     continue;
-                // }
-
-                let (coords_set, count) =
-                    fit_after_rotation_and_transposition(s1, s2, &rot, &delta);
-
-                if count >= number {
-                    // this is a solution
-                    return Some((coords_set, minus_vector(&delta), count));
-                }
-            }
-        }
-    }
-    return None;
-}
-
-fn fit_after_rotation_and_transposition(
-    s1: &Sonar,
-    s2: &Sonar,
-    rot: &[[i32; 3]; 3],
-    delta: &Coord,
-) -> (Sonar, usize) {
-    let mut count = 0;
-    let mut coords_set = s1.clone();
-    for c2 in s2 {
-        let c2_unrot = unrotate(c2, rot);
-        let c2_unrot_and_transposed = sub_coords(&c2_unrot, delta);
-        if coords_set.contains(&c2_unrot_and_transposed) {
-            count += 1;
-        } else {
-            coords_set.insert(c2_unrot_and_transposed);
-        }
-    }
-
-    (coords_set, count)
-}
-
-fn add_coords(c1: &Coord, c2: &Coord) -> Coord {
+fn add_vectors(c1: &Coord, c2: &Coord) -> Coord {
     (c1.0 + c2.0, c1.1 + c2.1, c1.2 + c2.2)
 }
 
-fn sub_coords(c1: &Coord, c2: &Coord) -> Coord {
+fn sub_vectors(c1: &Coord, c2: &Coord) -> Coord {
     (c1.0 - c2.0, c1.1 - c2.1, c1.2 - c2.2)
 }
 
 fn minus_vector(c1: &Coord) -> Coord {
     (-1 * c1.0, -1 * c1.1, -1 * c1.2)
+}
+
+fn manhatten_distance(c1: &Coord, c2: &Coord) -> i32 {
+    (c1.0 - c2.0).abs() + (c1.1 - c2.1).abs() + (c1.2 - c2.2).abs()
 }
 
 type Coord = (i32, i32, i32);
@@ -280,7 +264,6 @@ mod tests {
         assert_eq!(delta, (68, -1246, -43));
         assert_eq!(set.len(), 38);
 
-        println!("{:?}", set.difference(&resulting));
         assert!(resulting.is_superset(&set));
 
         let s4 = s4();
@@ -313,6 +296,7 @@ mod tests {
         assert_eq!(n, 12);
 
         assert_eq!(delta, (-92, -2380, -20));
+        assert_eq!(set.len(), 79);
     }
 
     #[test]
@@ -348,25 +332,17 @@ mod tests {
         let mut s3 = s3();
 
         'outer: for one in difference.iter() {
-            for (ix, rot) in ROTATIONS.iter().enumerate() {
-                let diff = add_coords(one, &s3_pos);
+            for (_ix, rot) in ROTATIONS.iter().enumerate() {
+                let diff = add_vectors(one, &s3_pos);
                 let rot = rotate(&diff, &rot);
 
                 if s3.contains(&rot) {
-                    println!("{} - Contains {:?}", ix, rot);
                     s3.remove(&rot);
                     continue 'outer;
                 }
             }
             panic!("All coords must be contained!")
         }
-        println!("{:?}", s3);
-
-        let res1 = s3
-            .iter()
-            .map(|c| sub_coords(&unrotate(c, &ROTATIONS[2]), &s3_pos))
-            .collect::<Vec<_>>();
-        println!("res1 = {:?}", res1);
     }
 
     fn resulting() -> Sonar {
