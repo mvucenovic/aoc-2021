@@ -16,6 +16,7 @@ mod d15;
 mod d16;
 mod d17;
 mod d18;
+mod d19;
 
 fn main() {
     println!("D01 Part 1 = {:?}", d01::part_01());
@@ -71,4 +72,7 @@ fn main() {
 
     println!("D18 Part 1 = {:?}", d18::part_01());
     println!("D18 Part 2 = {:?}", d18::part_02());
+
+    println!("D19 Part 1 = {:?}", d19::part_01());
+    println!("D19 Part 2 = {:?}", d19::part_02());
 }
